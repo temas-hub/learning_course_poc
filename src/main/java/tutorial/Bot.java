@@ -11,6 +11,10 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.List;
+// TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
+// LongPollingBot bot = new LongPollingBot();
+// botsApi.registerBot(bot);
+// bot.sendText(457656594L, "Привет!");  //The L just turns the Integer into a Long
 
 public class Bot extends TelegramLongPollingBot {
     private boolean screaming = false;
