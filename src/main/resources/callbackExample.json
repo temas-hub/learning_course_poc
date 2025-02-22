@@ -1,0 +1,24 @@
+{
+  merchantAccount=freelance_user_67b5a584473d6,
+  merchantSignature=132d58aa51c8d3a83f819a4502369ac1,
+  orderReference=WFP-BTN-10420649-67b6186619c52,
+  amount=1,
+  currency=UAH,
+  authCode=889301,
+  email=a.a.zhdanov@gmail.com,
+  phone=380663160941,
+  createdDate=1739987046,
+  processingDate=1739987057,
+  cardPan=53****2585,
+  cardType=MasterCard,
+  issuerBankCountry=Ukraine,
+  issuerBankName=Public
+  Joint-Stock
+  Company
+  "UkrSibbank",
+  transactionStatus=Approved,
+  reason=Ok,
+  reasonCode=1100,
+  fee=0.02,
+  paymentSystem=googlePay
+}

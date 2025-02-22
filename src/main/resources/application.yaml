@@ -1,8 +1,18 @@
+course:
+  itemDescription: "Энергия ON: Выходи на новый уровень"
+  price: 200
 telegram:
   api-url: "https://api.telegram.org/"
   webhook-path: "https://3893-109-86-217-9.ngrok-free.app"
   bot-name: "learning_course_energy_on_bot"
   bot-token: "7141593917:AAGouMrKk2K7iE6qnCPnb_AOo3H2kq34pZk"
+wayforpay:
+  merchantAccount: "freelance_user_67b5a584473d6"
+  merchantDomainName: "https://www.instagram.com/ira_ravchak"
+  currency: "UAH"
+  secretKey: "03354047d6cedde54829c5ff0035dbe4f29923f6"
+  api:
+    create_payment: "https://secure.wayforpay.com/pay"
 spring:
   redis:
     database: 0

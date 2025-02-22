@@ -18,9 +18,10 @@ public class ReplyKeyboardMaker {
     public ReplyKeyboardMarkup getMainMenuKeyboard() {
         KeyboardRow row1 = new KeyboardRow();
         row1.add(new KeyboardButton(ButtonNameEnum.START.getButtonName()));
-
+        row1.add(new KeyboardButton(ButtonNameEnum.BUY.getButtonName()));
 
         final ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+        replyKeyboardMarkup.setResizeKeyboard(true);
         replyKeyboardMarkup.setKeyboard(List.of(row1));
 
         return replyKeyboardMarkup;
@@ -40,6 +41,7 @@ public class ReplyKeyboardMaker {
         keyboard.add(row2);
 
         final ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+        replyKeyboardMarkup.setResizeKeyboard(true);
         replyKeyboardMarkup.setKeyboard(keyboard);
 
         return replyKeyboardMarkup;

@@ -1,10 +1,11 @@
 package com.temas.telegrambot.course.telegram;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
@@ -14,6 +15,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 @RestController
 @AllArgsConstructor
 public class WebHookController {
+    protected static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private final EnergyCourseBot energyCourseBot;
 
     @PostMapping("/")

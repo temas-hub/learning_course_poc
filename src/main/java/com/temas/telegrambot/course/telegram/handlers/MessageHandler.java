@@ -6,15 +6,16 @@ import com.temas.telegrambot.course.telegram.content.ContentMessages;
 import com.temas.telegrambot.course.telegram.content.VideoContent;
 import com.temas.telegrambot.course.telegram.keyboard.InlineKeyboardMaker;
 import com.temas.telegrambot.course.telegram.keyboard.ReplyKeyboardMaker;
+import com.temas.telegrambot.course.telegram.payment.PaymentPageCreator;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
-import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
+import org.telegram.telegrambots.meta.api.objects.LinkPreviewOptions;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.starter.SpringWebhookBot;
@@ -28,8 +29,10 @@ import java.io.File;
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @RequiredArgsConstructor
 public class MessageHandler {
+
     InlineKeyboardMaker inlineKeyboardMaker;
     ReplyKeyboardMaker replyKeyboardMaker;
+    PaymentPageCreator paymentPageCreator;
 
     public BotApiMethod<?> answerMessage(Message message, SpringWebhookBot bot) throws TelegramApiException {
         String chatId = message.getChatId().toString();
@@ -42,6 +45,8 @@ public class MessageHandler {
             return getStartMessage(chatId);
         } else if (inputText.equals(ButtonNameEnum.START.getButtonName())) {
             return getDay1Message(chatId);
+        } else if (inputText.equals(ButtonNameEnum.BUY.getButtonName())) {
+            return getBuyResponse(chatId);
         } else if (inputText.equals(ButtonNameEnum.PRACTICE.getButtonName())) {
             return getPracticeMessage(chatId);
         } else if (inputText.equals(ButtonNameEnum.CHECK_LIST.getButtonName())) {
@@ -49,6 +54,18 @@ public class MessageHandler {
             return null;
         } else {
             return new SendMessage(chatId, BotMessages.TBD.getMessage());
+        }
+    }
+
+    private BotApiMethod<?> getBuyResponse(String chatId) {
+        try {
+            var url = paymentPageCreator.getPaymentPageUrl();
+            SendMessage sendMessage = new SendMessage(chatId, BotMessages.BUY_COURSE.getMessage());
+            sendMessage.setReplyMarkup(inlineKeyboardMaker.getInlineLinkButton(ButtonNameEnum.WAY4PAY.getButtonName(), url));
+            return sendMessage;
+        } catch (Exception e) {
+            return new SendMessage(chatId,
+                    BotMessages.EXCEPTION_WHAT_THE_FUCK.getMessage());
         }
     }
 

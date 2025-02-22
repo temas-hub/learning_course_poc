@@ -22,4 +22,13 @@ public class InlineKeyboardMaker {
         inlineKeyboardMarkup.setKeyboard(List.of(List.of(button)));
         return inlineKeyboardMarkup;
     }
+
+    public InlineKeyboardMarkup getInlineLinkButton(String name, String url) {
+        InlineKeyboardButton button = new InlineKeyboardButton();
+        button.setText(name);
+        button.setUrl(url);
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        inlineKeyboardMarkup.setKeyboard(List.of(List.of(button)));
+        return inlineKeyboardMarkup;
+    }
 }
