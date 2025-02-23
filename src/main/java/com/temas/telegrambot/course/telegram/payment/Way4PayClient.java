@@ -44,13 +44,12 @@ public class Way4PayClient {
     @Value("${wayforpay.api.create_payment}")
     String createPaymentUrl;
 
-    final OrderReferenceGenerator orderReferenceGenerator;
-    final OrderService orderService;
 
-    public String sendPayment(String orderDate, BigDecimal amount,
-                                              List<String> productNames, List<String> productCounts, List<String> productPrices) throws Exception {
 
-        var orderReference = orderReferenceGenerator.generateOrderReference();
+    public String sendPayment(String orderReference, String orderDate, String amount,
+                              List<String> productNames, List<String> productCounts, List<String> productPrices) throws Exception {
+
+
         // Step 1: Concatenate the parameters for signature
         StringBuilder dataToSign = new StringBuilder();
         dataToSign.append(merchantAccount).append(";")
@@ -119,14 +118,6 @@ public class Way4PayClient {
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
 
         var paymentPageUrl = extractUrlFromResponse(response);
-
-        orderService.save(Order.builder()
-                .orderReference(orderReference)
-                .orderDate(System.currentTimeMillis())
-                .amount(amount.intValue())
-                .status(OrderStatus.PENDING)
-                .build()
-        );
 
         // Step 5: Return the response
         return paymentPageUrl;

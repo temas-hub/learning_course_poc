@@ -18,7 +18,7 @@ import java.util.Optional;
 public class UserService {
     final UserRepository userRepository;
 
-    public User registerUser(User user) {
+    public User saveUser(User user) {
         return userRepository.save(user);
     }
 

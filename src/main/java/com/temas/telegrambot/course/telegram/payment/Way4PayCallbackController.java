@@ -1,6 +1,8 @@
 package com.temas.telegrambot.course.telegram.payment;
 
+import com.temas.telegrambot.course.telegram.data.User;
 import com.temas.telegrambot.course.telegram.service.OrderService;
+import com.temas.telegrambot.course.telegram.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +29,6 @@ public class Way4PayCallbackController {
             orderService.rejectOrder(orderReference);
         }
 
-        System.out.println(allRequestParams.toString());
+        System.out.println(allRequestParams);
     }
 }

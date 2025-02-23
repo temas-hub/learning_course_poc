@@ -21,7 +21,8 @@ import java.io.Serializable;
 public class Order implements Serializable {
     @Id String orderReference;
 
+    Long userId;
     Long orderDate;
-    Integer amount;
+    String amount;
     OrderStatus status;
 }
