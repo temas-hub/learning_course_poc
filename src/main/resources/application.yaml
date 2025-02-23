@@ -1,24 +1,34 @@
 course:
   itemDescription: "Энергия ON: Выходи на новый уровень"
-  price: 200
+  price: 1
 telegram:
   api-url: "https://api.telegram.org/"
   webhook-path: "https://3893-109-86-217-9.ngrok-free.app"
   bot-name: "learning_course_energy_on_bot"
   bot-token: "7141593917:AAGouMrKk2K7iE6qnCPnb_AOo3H2kq34pZk"
 wayforpay:
-  merchantAccount: "freelance_user_67b5a584473d6"
+#  merchantAccount: "freelance_user_67b5a584473d6"
+#  secretKey: "03354047d6cedde54829c5ff0035dbe4f29923f6"
+  merchantAccount: "test_merch_n1"
+  secretKey: "flk3409refn54t54t*FNJRET"
+  apiVersion: "1"
   merchantDomainName: "https://www.instagram.com/ira_ravchak"
   currency: "UAH"
-  secretKey: "03354047d6cedde54829c5ff0035dbe4f29923f6"
   api:
     create_payment: "https://secure.wayforpay.com/pay"
 spring:
-  redis:
-    database: 0
-    host: "<...>.compute-1.amazonaws.com"
-    port: "<как правило, 5 цифр, если деплоим на Heroku>"
-    password: "<очень длинный пароль:)>"
-    ssl: true
+  data:
+    redis:
+      host: "ec2-63-34-130-31.eu-west-1.compute.amazonaws.com"
+      port: 18810
+      password: "p34bc23ecfa4ef9b0d7750b16d5c2d0b63edc33c958041fc1d3ab84086ea340b4"
+      ssl:
+        enabled: true
+      database: 0
 server:
   port: 5000
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health"

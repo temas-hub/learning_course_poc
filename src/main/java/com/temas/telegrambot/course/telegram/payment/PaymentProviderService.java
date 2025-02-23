@@ -20,13 +20,13 @@ import java.util.List;
 @Component
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @RequiredArgsConstructor()
-public class PaymentPageCreator {
+public class PaymentProviderService {
     @Value("${course.itemDescription}")
     String itemDescription;
     @Value("${course.price}")
     String price;
 
-    final Way4PayClient paymentSender;
+    final Way4PayClient way4PayClient;
     final OrderReferenceGenerator orderReferenceGenerator;
     final OrderService orderService;
     final UserService userService;
@@ -39,7 +39,7 @@ public class PaymentPageCreator {
         Order order = prepareOrder(user.getId(), price, date);
 
 
-        String url = paymentSender.sendPayment(
+        String url = way4PayClient.sendPayment(
                 order.getOrderReference(),
                 String.valueOf(date),
                 price,
@@ -50,7 +50,18 @@ public class PaymentPageCreator {
         return url;
     }
 
-    public Order prepareOrder(Long userId, String amount, long date) {
+    public boolean confirmOrderApproved(String orderReference) throws Exception {
+        var transactionStatus = way4PayClient.checkPaymentStatus(orderReference);
+        if ("Approved".equals(transactionStatus)) {
+            orderService.approveOrder(orderReference);
+            return true;
+        } else {
+            orderService.rejectOrder(orderReference);
+            return false;
+        }
+    }
+
+    private Order prepareOrder(Long userId, String amount, long date) {
         var orderReference = orderReferenceGenerator.generateOrderReference();
         return orderService.save(Order.builder()
                 .orderReference(orderReference)

@@ -10,10 +10,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Component
 public class OrderReferenceGenerator {
 
-
-
     public String generateOrderReference() {
         long currentNumber = System.currentTimeMillis();
-        return String.format("LC-%14d", currentNumber); // Format to "LC-XXXXXXXXXXXXXX"
+        return String.format("LC-%13d", currentNumber); // Format to "LC-XXXXXXXXXXXXXX"
     }
 }

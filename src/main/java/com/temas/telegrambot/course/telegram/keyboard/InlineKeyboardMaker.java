@@ -1,5 +1,6 @@
 package com.temas.telegrambot.course.telegram.keyboard;
 
+import com.temas.telegrambot.course.telegram.content.ButtonNameEnum;
 import com.temas.telegrambot.course.telegram.content.VideoContent;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -29,6 +30,18 @@ public class InlineKeyboardMaker {
         button.setUrl(url);
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         inlineKeyboardMarkup.setKeyboard(List.of(List.of(button)));
+        return inlineKeyboardMarkup;
+    }
+
+    public InlineKeyboardMarkup getInlineBuyButtons(String url) {
+        InlineKeyboardButton button1 = new InlineKeyboardButton();
+        button1.setText(ButtonNameEnum.WAY4PAY.getButtonName());
+        button1.setUrl(url);
+
+        InlineKeyboardButton button2 = new InlineKeyboardButton();
+        button2.setText(ButtonNameEnum.CHECK_PAYMENT.getButtonName());
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        inlineKeyboardMarkup.setKeyboard(List.of(List.of(button1, button2)));
         return inlineKeyboardMarkup;
     }
 }

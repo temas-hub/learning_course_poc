@@ -7,7 +7,8 @@ import com.temas.telegrambot.course.telegram.content.VideoContent;
 import com.temas.telegrambot.course.telegram.data.UserMapper;
 import com.temas.telegrambot.course.telegram.keyboard.InlineKeyboardMaker;
 import com.temas.telegrambot.course.telegram.keyboard.ReplyKeyboardMaker;
-import com.temas.telegrambot.course.telegram.payment.PaymentPageCreator;
+import com.temas.telegrambot.course.telegram.payment.PaymentProviderService;
+import com.temas.telegrambot.course.telegram.service.OrderService;
 import com.temas.telegrambot.course.telegram.service.RegistrationService;
 import com.temas.telegrambot.course.telegram.service.UserService;
 import lombok.AccessLevel;
@@ -35,9 +36,10 @@ public class MessageHandler {
 
     InlineKeyboardMaker inlineKeyboardMaker;
     ReplyKeyboardMaker replyKeyboardMaker;
-    PaymentPageCreator paymentPageCreator;
+    PaymentProviderService paymentProviderService;
     UserService userService;
     RegistrationService registrationService;
+    private final OrderService orderService;
 
     public BotApiMethod<?> answerMessage(Message message, SpringWebhookBot bot) throws TelegramApiException {
         String chatId = message.getChatId().toString();
@@ -48,11 +50,13 @@ public class MessageHandler {
         if (inputText == null) {
             throw new IllegalArgumentException();
         } else if (inputText.equals("/start")) {
-            return getStartMessage(chatId, user);
-        } else if (inputText.equals(ButtonNameEnum.START.getButtonName())) {
-            return getDay1Message(chatId);
+            return getStartMessage(user, chatId);
         } else if (inputText.equals(ButtonNameEnum.BUY.getButtonName())) {
             return getBuyResponse(user, chatId);
+        } else if (inputText.equals(ButtonNameEnum.CHECK_PAYMENT.getButtonName())) {
+            return buildCheckPaymentResponse(user, chatId);
+        } else if (inputText.equals(ButtonNameEnum.DAY1.getButtonName())) {
+            return getDay1Message(chatId);
         } else if (inputText.equals(ButtonNameEnum.PRACTICE.getButtonName())) {
             return getPracticeMessage(chatId);
         } else if (inputText.equals(ButtonNameEnum.CHECK_LIST.getButtonName())) {
@@ -64,7 +68,7 @@ public class MessageHandler {
     }
 
 
-    private SendMessage getStartMessage(String chatId, User telegtramUser) {
+    private SendMessage getStartMessage(User telegtramUser, String chatId) {
         var markup = registrationService.isPayedUser(telegtramUser.getId())
                 .map(replyKeyboardMaker::getFullAccessMainMenuKeyboard)
                 .orElse(replyKeyboardMaker.getNoAccessMainMenuKeyboard());
@@ -104,10 +108,28 @@ public class MessageHandler {
         try {
             var user = userService.getUser(telegramUser.getId()).orElse(
                     userService.saveUser(UserMapper.mapUser(telegramUser)));
-            var url = paymentPageCreator.getPaymentPageUrl(user);
+            var url = paymentProviderService.getPaymentPageUrl(user);
             SendMessage sendMessage = new SendMessage(chatId, BotMessages.BUY_COURSE.getMessage());
             sendMessage.setReplyMarkup(inlineKeyboardMaker.getInlineLinkButton(ButtonNameEnum.WAY4PAY.getButtonName(), url));
             return sendMessage;
+        } catch (Exception e) {
+            return new SendMessage(chatId,
+                    BotMessages.EXCEPTION_WHAT_THE_FUCK.getMessage());
+        }
+    }
+
+    private BotApiMethod<?> buildCheckPaymentResponse(User telegramUser, String chatId) {
+        try {
+            var user = userService.getUser(telegramUser.getId());
+            if (user.isPresent() && paymentProviderService.confirmOrderApproved(user.get().getOrderReference())) {
+                SendMessage sendMessage = new SendMessage(chatId, BotMessages.SUCCESS_PAYMENT.getMessage());
+                sendMessage.setReplyMarkup(replyKeyboardMaker.getFullAccessMainMenuKeyboard(user.get()));
+                return sendMessage;
+            } else {
+                SendMessage sendMessage = new SendMessage(chatId, BotMessages.NOT_SUCCESS_PAYMENT.getMessage());
+                sendMessage.setReplyMarkup(replyKeyboardMaker.getNoAccessMainMenuKeyboard());
+                return sendMessage;
+            }
         } catch (Exception e) {
             return new SendMessage(chatId,
                     BotMessages.EXCEPTION_WHAT_THE_FUCK.getMessage());

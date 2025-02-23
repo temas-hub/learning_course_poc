@@ -35,6 +35,7 @@ public class ReplyKeyboardMaker {
     public ReplyKeyboardMarkup getNoAccessMainMenuKeyboard() {
         KeyboardRow row1 = new KeyboardRow();
         row1.add(new KeyboardButton(ButtonNameEnum.BUY.getButtonName()));
+        row1.add(new KeyboardButton(ButtonNameEnum.CHECK_PAYMENT.getButtonName()));
 
         final ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
         replyKeyboardMarkup.setResizeKeyboard(true);

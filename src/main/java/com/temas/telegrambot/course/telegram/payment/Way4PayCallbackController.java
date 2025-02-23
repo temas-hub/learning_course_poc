@@ -23,7 +23,7 @@ public class Way4PayCallbackController {
         var orderReference = allRequestParams.get("orderReference");
         var transactionStatus = allRequestParams.get("transactionStatus");
 
-        if (transactionStatus.equals("callbackExample.json")) {
+        if (transactionStatus.equals("Approved")) {
             orderService.approveOrder(orderReference);
         } else {
             orderService.rejectOrder(orderReference);

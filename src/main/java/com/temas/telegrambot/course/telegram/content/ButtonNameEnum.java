@@ -9,6 +9,7 @@ package com.temas.telegrambot.course.telegram.content;
 public enum ButtonNameEnum {
     START("Старт"),
     BUY("Купить"),
+    CHECK_PAYMENT("Проверить оплату"),
     MENU("Содержание"),
     DAY1("День 1"),
     PRESENTATION("Презентация"),

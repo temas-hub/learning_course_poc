@@ -20,7 +20,9 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by azhdanov on 19.02.2025.
@@ -35,6 +37,9 @@ public class Way4PayClient {
     @Value("${wayforpay.merchantDomainName}")
     String merchantDomainName;
 
+        @Value("${wayforpay.apiVersion}")
+    String apiVersion;
+
     @Value("${wayforpay.currency}")
     String currency;
 
@@ -44,7 +49,7 @@ public class Way4PayClient {
     @Value("${wayforpay.api.create_payment}")
     String createPaymentUrl;
 
-
+    final RestTemplate restTemplate = new RestTemplate();
 
     public String sendPayment(String orderReference, String orderDate, String amount,
                               List<String> productNames, List<String> productCounts, List<String> productPrices) throws Exception {
@@ -56,7 +61,7 @@ public class Way4PayClient {
                 .append(merchantDomainName).append(";")
                 .append(orderReference).append(";")
                 .append(orderDate).append(";")
-                .append(amount.toString()).append(";")
+                .append(amount).append(";")
                 .append(currency).append(";");
 
         for (String productName : productNames) {
@@ -108,7 +113,6 @@ public class Way4PayClient {
         );
 
         // Step 4: Send the request using RestTemplate
-        RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
         headers.set("Accept-Charset", "utf-8");
@@ -117,10 +121,37 @@ public class Way4PayClient {
         String url = createPaymentUrl + "?behavior=offline";
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
 
-        var paymentPageUrl = extractUrlFromResponse(response);
+        var paymentPageUrl = extractUrlFromResponse(response, "url");
 
         // Step 5: Return the response
         return paymentPageUrl;
+    }
+
+    public String checkPaymentStatus(String orderReference) throws Exception {
+        // Step 1: Generate the signature
+        String dataToSign = merchantAccount + ";" + orderReference;
+
+        String signature = generateHmacMd5(dataToSign, secretKey);
+
+        // Step 2: Prepare the request payload
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("transactionType", "CHECK_STATUS");
+        requestBody.put("merchantAccount", merchantAccount);
+        requestBody.put("orderReference", orderReference);
+        requestBody.put("merchantSignature", signature);
+        requestBody.put("apiVersion", apiVersion);
+
+        // Step 3: Send the request
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_TYPE, "application/json");
+
+        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
+        ResponseEntity<String> response = restTemplate.exchange("https://api.wayforpay.com/api", HttpMethod.POST, requestEntity, String.class);
+
+        var transactionStatus = extractUrlFromResponse(response, "transactionStatus");
+
+        // Step 4: Return the response body
+        return transactionStatus;
     }
 
     private String generateHmacMd5(String data, String secretKey) throws Exception {
@@ -143,7 +174,7 @@ public class Way4PayClient {
         return hexString.toString();
     }
 
-    private String extractUrlFromResponse(ResponseEntity<String> response) {
+    private String extractUrlFromResponse(ResponseEntity<String> response, String field) {
         String url = null;
         try {
             // Parse the response body
@@ -151,8 +182,8 @@ public class Way4PayClient {
             JsonNode rootNode = objectMapper.readTree(response.getBody());
 
             // Extract the "url" field
-            if (rootNode.has("url")) {
-                url = rootNode.get("url").asText();
+            if (rootNode.has(field)) {
+                url = rootNode.get(field).asText();
             }
         } catch (Exception e) {
             e.printStackTrace();
