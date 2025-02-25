@@ -1,11 +1,17 @@
 package com.temas.telegrambot.course.telegram.service;
 
+import com.temas.telegrambot.course.telegram.content.BotMessages;
 import com.temas.telegrambot.course.telegram.data.Order;
 import com.temas.telegrambot.course.telegram.data.OrderRepository;
 import com.temas.telegrambot.course.telegram.data.OrderStatus;
+import com.temas.telegrambot.course.telegram.data.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.starter.SpringWebhookBot;
 
+import javax.swing.plaf.BorderUIResource;
 import java.util.Optional;
 
 /**
@@ -24,30 +30,24 @@ public class OrderService {
         return orderRepository.findById(reference);
     }
 
-    public void approveOrder(String reference) {
+    public Optional<Order> approveOrder(String reference) {
         Optional<Order> order = getOrder(reference);
         if (order.isPresent()) {
             Order o = order.get();
-            orderRepository.save(Order.builder()
-                    .orderReference(o.getOrderReference())
-                    .orderDate(o.getOrderDate())
-                    .amount(o.getAmount())
-                    .status(OrderStatus.APPROVED)
-            .build());
+            o.setStatus(OrderStatus.APPROVED);
+            orderRepository.save(o);
         }
+        return order;
     }
 
-    public void rejectOrder(String reference) {
+    public Optional<Order> rejectOrder(String reference) {
         Optional<Order> order = getOrder(reference);
         if (order.isPresent()) {
             Order o = order.get();
-            orderRepository.save(Order.builder()
-                    .orderReference(o.getOrderReference())
-                    .orderDate(o.getOrderDate())
-                    .amount(o.getAmount())
-                    .status(OrderStatus.REJECTED)
-                    .build());
+            o.setStatus(OrderStatus.REJECTED);
+            orderRepository.save(o);
         }
+        return order;
     }
 
 }

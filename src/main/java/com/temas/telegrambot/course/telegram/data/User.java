@@ -25,6 +25,7 @@ public class User implements Serializable {
     String userName;
     String firstName;
     String lastName;
+    String chatId;
 
     @Setter
     String orderReference;

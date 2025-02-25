@@ -18,7 +18,7 @@ public class SpringConfig {
 
     @Bean
     public SetWebhook setWebhookInstance() {
-        return SetWebhook.builder().url(telegramConfig.getWebhookPath()).build();
+        return SetWebhook.builder().url(telegramConfig.getWebhookURL()).build();
     }
 
     @Bean
@@ -27,7 +27,7 @@ public class SpringConfig {
                                             CallbackQueryHandler callbackQueryHandler) {
         EnergyCourseBot bot = new EnergyCourseBot(setWebhook, telegramConfig.getBotToken(), messageHandler, callbackQueryHandler);
 
-        bot.setBotPath(telegramConfig.getWebhookPath());
+        bot.setBotPath(telegramConfig.getWebhookURL());
         bot.setBotUsername(telegramConfig.getBotName());
 
         return bot;

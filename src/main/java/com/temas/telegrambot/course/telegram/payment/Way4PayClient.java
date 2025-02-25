@@ -2,8 +2,11 @@ package com.temas.telegrambot.course.telegram.payment;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.temas.telegrambot.course.telegram.config.TelegramConfig;
 import com.temas.telegrambot.course.telegram.data.Order;
 import com.temas.telegrambot.course.telegram.data.OrderStatus;
+import com.temas.telegrambot.course.telegram.payment.dto.PaymentRequest;
+import com.temas.telegrambot.course.telegram.payment.dto.PaymentResponse;
 import com.temas.telegrambot.course.telegram.service.OrderService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -18,11 +21,10 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static com.temas.telegrambot.course.telegram.payment.HmacMd5Generator.generateHmacMd5;
 
 /**
  * Created by azhdanov on 19.02.2025.
@@ -31,13 +33,18 @@ import java.util.Map;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @RequiredArgsConstructor
 public class Way4PayClient {
+    private static final String HMAC_MD5_ALGORITHM = "HmacMD5";
+    public static final String MERCHANT_AUTH_TYPE = "SimpleSignature";
+
+    final TelegramConfig config;
+
     @Value("${wayforpay.merchantAccount}")
     String merchantAccount;
 
     @Value("${wayforpay.merchantDomainName}")
     String merchantDomainName;
 
-        @Value("${wayforpay.apiVersion}")
+    @Value("${wayforpay.apiVersion}")
     String apiVersion;
 
     @Value("${wayforpay.currency}")
@@ -49,82 +56,71 @@ public class Way4PayClient {
     @Value("${wayforpay.api.create_payment}")
     String createPaymentUrl;
 
+    @Value("${wayforpay.api.callback.url}")
+    String callbackUrl;
+
     final RestTemplate restTemplate = new RestTemplate();
 
-    public String sendPayment(String orderReference, String orderDate, String amount,
-                              List<String> productNames, List<String> productCounts, List<String> productPrices) throws Exception {
+    public PaymentResponse sendPayment(String orderReference, String orderDate, String amount,
+                                       List<String> productNames, List<String> productCounts, List<String> productPrices) throws Exception {
+        // Step 0: Create request
+        String callbackPath = config.getWebhookURL() + callbackUrl;
+        PaymentRequest paymentRequest = new PaymentRequest(merchantAccount, MERCHANT_AUTH_TYPE, merchantDomainName,
+                orderReference, orderDate, amount, currency, productNames, productCounts, productPrices, callbackPath, null);
 
+        // Step 1: Generate signature
+        String signature = generatePaymentSignature(paymentRequest);
+        paymentRequest.setMerchantSignature(signature);
 
-        // Step 1: Concatenate the parameters for signature
-        StringBuilder dataToSign = new StringBuilder();
-        dataToSign.append(merchantAccount).append(";")
-                .append(merchantDomainName).append(";")
-                .append(orderReference).append(";")
-                .append(orderDate).append(";")
-                .append(amount).append(";")
-                .append(currency).append(";");
-
-        for (String productName : productNames) {
-            dataToSign.append(productName).append(";");
-        }
-
-        for (String productCount : productCounts) {
-            dataToSign.append(productCount).append(";");
-        }
-
-        for (String productPrice : productPrices) {
-            dataToSign.append(productPrice).append(";");
-        }
-
-        // Remove the last extra semicolon
-        dataToSign.setLength(dataToSign.length() - 1);
-
-        // Step 2: Generate HMAC_MD5 signature
-        String signature = generateHmacMd5(dataToSign.toString(), secretKey);
-
-        List<String> quotedProductNames = productNames.stream()
-                .map(name -> "\"" + name + "\"")
-                .toList();
-        List<String> quotedProductPrices = productPrices.stream()
-                .map(name -> "\"" + name + "\"")
-                .toList();
-        List<String> quotedProductCounts = productCounts.stream()
-                .map(name -> "\"" + name + "\"")
-                .toList();
-
-        // Step 3: Create the JSON request body
-        String requestBody = String.format(
-                """
-                        {
-                          "merchantAccount": "%s",
-                          "merchantAuthType": "SimpleSignature",
-                          "merchantDomainName": "%s",
-                          "orderReference": "%s",
-                          "orderDate": "%s",
-                          "amount": "%s",
-                          "currency": "%s",
-                          "productName": %s,
-                          "productPrice": %s,
-                          "productCount": %s,
-                          "merchantSignature": "%s"
-                        }""",
-                merchantAccount, merchantDomainName, orderReference, orderDate, amount, currency,
-                quotedProductNames, quotedProductPrices, quotedProductCounts, signature
-        );
-
-        // Step 4: Send the request using RestTemplate
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Content-Type", "application/json");
-        headers.set("Accept-Charset", "utf-8");
-
-        HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+        // Step 2: Send request
         String url = createPaymentUrl + "?behavior=offline";
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+        return sendRequest(url, paymentRequest, PaymentResponse.class);
+    }
 
-        var paymentPageUrl = extractUrlFromResponse(response, "url");
 
-        // Step 5: Return the response
-        return paymentPageUrl;
+    /**
+     * Generates HMAC signature for payment requests.
+     */
+    private String generatePaymentSignature(PaymentRequest request) {
+        try {
+            // Quote product names
+            List<String> quotedProductNames = request.getProductName().stream()
+                    .map(name -> "\"" + name + "\"")
+                    .toList();
+
+            // Concatenate values with ";"
+            StringJoiner joiner = new StringJoiner(";");
+            joiner.add(request.getMerchantAccount())
+                    .add(request.getMerchantDomainName())
+                    .add(request.getOrderReference())
+                    .add(request.getOrderDate())
+                    .add(request.getAmount())
+                    .add(request.getCurrency());
+            request.getProductName().forEach(joiner::add);
+            request.getProductCount().forEach(joiner::add);
+            request.getProductPrice().forEach(joiner::add);
+
+            return generateHmac(joiner.toString(), secretKey);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to generate payment signature", e);
+        }
+    }
+
+    private <T> T sendRequest(String url,  Object requestBody, Class<T> responseType) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_TYPE, "application/json");
+        headers.add(HttpHeaders.ACCEPT, "application/json");
+
+        HttpEntity<Object> requestEntity = new HttpEntity<>(requestBody, headers);
+
+
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
+        try {
+            return new ObjectMapper().readValue(response.getBody(), responseType);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse JSON response: " + response.getBody(), e);
+        }
     }
 
     public String checkPaymentStatus(String orderReference) throws Exception {
@@ -154,15 +150,23 @@ public class Way4PayClient {
         return transactionStatus;
     }
 
-    private String generateHmacMd5(String data, String secretKey) throws Exception {
-        Mac mac = Mac.getInstance("HmacMD5");
-        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), "HmacMD5");
-        mac.init(secretKeySpec);
-        byte[] hmacBytes = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
-        return bytesToHex(hmacBytes);
+    /**
+     * Generates an HMAC-MD5 signature.
+     */
+    public static String generateHmac(String data, String secretKey) throws Exception {
+        try {
+            Mac mac = Mac.getInstance(HMAC_MD5_ALGORITHM);
+            SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), HMAC_MD5_ALGORITHM);
+            mac.init(secretKeySpec);
+            byte[] hmacBytes = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
+            return bytesToHex(hmacBytes);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to generate HMAC", e);
+        }
     }
 
-    private String bytesToHex(byte[] bytes) {
+    private static String bytesToHex(byte[] bytes) {
         StringBuilder hexString = new StringBuilder();
         for (byte b : bytes) {
             String hex = Integer.toHexString(0xFF & b);

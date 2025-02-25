@@ -3,7 +3,7 @@ course:
   price: 1
 telegram:
   api-url: "https://api.telegram.org/"
-  webhook-path: "https://3893-109-86-217-9.ngrok-free.app"
+  webhook-url: "https://651d-109-86-217-9.ngrok-free.app"
   bot-name: "learning_course_energy_on_bot"
   bot-token: "7141593917:AAGouMrKk2K7iE6qnCPnb_AOo3H2kq34pZk"
 wayforpay:
@@ -16,6 +16,8 @@ wayforpay:
   currency: "UAH"
   api:
     create_payment: "https://secure.wayforpay.com/pay"
+    callback:
+      url: "/callback"
 spring:
   data:
     redis:

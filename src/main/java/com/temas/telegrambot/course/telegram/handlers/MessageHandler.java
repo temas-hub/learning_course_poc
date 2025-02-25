@@ -107,7 +107,7 @@ public class MessageHandler {
     private BotApiMethod<?> getBuyResponse(User telegramUser, String chatId) {
         try {
             var user = userService.getUser(telegramUser.getId()).orElse(
-                    userService.saveUser(UserMapper.mapUser(telegramUser)));
+                    userService.saveUser(UserMapper.mapUser(telegramUser, chatId)));
             var url = paymentProviderService.getPaymentPageUrl(user);
             SendMessage sendMessage = new SendMessage(chatId, BotMessages.BUY_COURSE.getMessage());
             sendMessage.setReplyMarkup(inlineKeyboardMaker.getInlineLinkButton(ButtonNameEnum.WAY4PAY.getButtonName(), url));

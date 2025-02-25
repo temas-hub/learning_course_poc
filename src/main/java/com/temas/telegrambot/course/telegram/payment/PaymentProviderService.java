@@ -3,6 +3,7 @@ package com.temas.telegrambot.course.telegram.payment;
 import com.temas.telegrambot.course.telegram.data.Order;
 import com.temas.telegrambot.course.telegram.data.OrderStatus;
 import com.temas.telegrambot.course.telegram.data.User;
+import com.temas.telegrambot.course.telegram.payment.dto.PaymentResponse;
 import com.temas.telegrambot.course.telegram.service.OrderService;
 import com.temas.telegrambot.course.telegram.service.UserService;
 import lombok.AccessLevel;
@@ -39,7 +40,7 @@ public class PaymentProviderService {
         Order order = prepareOrder(user.getId(), price, date);
 
 
-        String url = way4PayClient.sendPayment(
+        PaymentResponse response = way4PayClient.sendPayment(
                 order.getOrderReference(),
                 String.valueOf(date),
                 price,
@@ -47,7 +48,7 @@ public class PaymentProviderService {
 
         user.setOrderReference(order.getOrderReference());
         userService.saveUser(user);
-        return url;
+        return response.getPaymentUrl();
     }
 
     public boolean confirmOrderApproved(String orderReference) throws Exception {
