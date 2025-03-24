@@ -78,4 +78,24 @@ public class ReplyKeyboardMaker {
 
         return replyKeyboardMarkup;
     }
+
+    public ReplyKeyboardMarkup getDayXMenu() {
+        KeyboardRow row1 = new KeyboardRow();
+        row1.add(new KeyboardButton(ButtonNameEnum.PRESENTATION.getButtonName()));
+        row1.add(new KeyboardButton(ButtonNameEnum.PREV.getButtonName()));
+
+        KeyboardRow row2 = new KeyboardRow();
+        row2.add(new KeyboardButton(ButtonNameEnum.PRACTICE.getButtonName()));
+        row2.add(new KeyboardButton(ButtonNameEnum.NEXT.getButtonName()));
+
+        List<KeyboardRow> keyboard = new ArrayList<>();
+        keyboard.add(row1);
+        keyboard.add(row2);
+
+        final ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+        replyKeyboardMarkup.setResizeKeyboard(true);
+        replyKeyboardMarkup.setKeyboard(keyboard);
+
+        return replyKeyboardMarkup;
+    }
 }

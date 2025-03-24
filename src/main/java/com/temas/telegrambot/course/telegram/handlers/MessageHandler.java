@@ -8,6 +8,7 @@ import com.temas.telegrambot.course.telegram.data.UserMapper;
 import com.temas.telegrambot.course.telegram.keyboard.InlineKeyboardMaker;
 import com.temas.telegrambot.course.telegram.keyboard.ReplyKeyboardMaker;
 import com.temas.telegrambot.course.telegram.payment.PaymentProviderService;
+import com.temas.telegrambot.course.telegram.service.ContentService;
 import com.temas.telegrambot.course.telegram.service.OrderService;
 import com.temas.telegrambot.course.telegram.service.RegistrationService;
 import com.temas.telegrambot.course.telegram.service.UserService;
@@ -39,6 +40,8 @@ public class MessageHandler {
     PaymentProviderService paymentProviderService;
     UserService userService;
     RegistrationService registrationService;
+    ContentService contentService;
+
     private final OrderService orderService;
 
     public BotApiMethod<?> answerMessage(Message message, SpringWebhookBot bot) throws TelegramApiException {
@@ -57,6 +60,10 @@ public class MessageHandler {
             return buildCheckPaymentResponse(user, chatId);
         } else if (inputText.equals(ButtonNameEnum.DAY1.getButtonName())) {
             return getDay1Message(chatId);
+        } else if (inputText.equals(ButtonNameEnum.NEXT.getButtonName())) {
+            return getDayXMessage(user, chatId, true);
+        } else if (inputText.equals(ButtonNameEnum.PREV.getButtonName())) {
+            return getDayXMessage(user, chatId, false);
         } else if (inputText.equals(ButtonNameEnum.PRACTICE.getButtonName())) {
             return getPracticeMessage(chatId);
         } else if (inputText.equals(ButtonNameEnum.CHECK_LIST.getButtonName())) {
@@ -86,6 +93,21 @@ public class MessageHandler {
         return sendMessage;
     }
 
+    private SendMessage getDayXMessage(User telegramUser, String chatId, boolean isForward) {
+        return userService.getUser(telegramUser.getId()).map(u -> {
+            var day = isForward ? contentService.nextDay(u): contentService.prevDay(u);
+            if (day != u.getDay()) {
+                u.setDay(day);
+                userService.saveUser(u);
+            }
+            var content = contentService.getCurrentDayContent(day);
+            SendMessage sendMessage = new SendMessage(chatId, content);
+            sendMessage.enableMarkdown(true);
+            sendMessage.setReplyMarkup(replyKeyboardMaker.getDayXMenu());
+            return sendMessage;
+        }).orElseThrow();
+    }
+
     private SendMessage getPracticeMessage(String chatId) {
         SendMessage sendMessage = new SendMessage(chatId, VideoContent.DAY_1.getTitle());
         sendMessage.enableMarkdown(true);
@@ -97,7 +119,7 @@ public class MessageHandler {
         SendDocument sendDocument = new SendDocument();
         sendDocument.setChatId(chatId);
 
-        File file = new File("README.txt");
+        File file = new File("check_list.pdf");
         sendDocument.setDocument(new InputFile(file));
         sendDocument.setCaption("Here is your file!");
         bot.execute(sendDocument);

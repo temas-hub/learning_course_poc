@@ -21,8 +21,8 @@ wayforpay:
 spring:
   data:
     redis:
-      host: "ec2-63-34-130-31.eu-west-1.compute.amazonaws.com"
-      port: 18810
+      host: "ec2-34-246-82-213.eu-west-1.compute.amazonaws.com"
+      port: 11660
       password: "p34bc23ecfa4ef9b0d7750b16d5c2d0b63edc33c958041fc1d3ab84086ea340b4"
       ssl:
         enabled: true
