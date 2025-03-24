@@ -65,7 +65,7 @@ public class MessageHandler {
         } else if (inputText.equals(ButtonNameEnum.PREV.getButtonName())) {
             return getDayXMessage(user, chatId, false);
         } else if (inputText.equals(ButtonNameEnum.PRACTICE.getButtonName())) {
-            return getPracticeMessage(chatId);
+            return getPracticeMessage(user, chatId);
         } else if (inputText.equals(ButtonNameEnum.CHECK_LIST.getButtonName())) {
             sendFile(chatId, bot);
             return null;
@@ -100,7 +100,7 @@ public class MessageHandler {
                 u.setDay(day);
                 userService.saveUser(u);
             }
-            var content = contentService.getCurrentDayContent(day);
+            var content = contentService.getDayContent(day);
             SendMessage sendMessage = new SendMessage(chatId, content);
             sendMessage.enableMarkdown(true);
             sendMessage.setReplyMarkup(replyKeyboardMaker.getDayXMenu());
@@ -108,11 +108,15 @@ public class MessageHandler {
         }).orElseThrow();
     }
 
-    private SendMessage getPracticeMessage(String chatId) {
-        SendMessage sendMessage = new SendMessage(chatId, VideoContent.DAY_1.getTitle());
-        sendMessage.enableMarkdown(true);
-        sendMessage.setReplyMarkup(inlineKeyboardMaker.getInlineVideoButtons());
-        return sendMessage;
+    private SendMessage getPracticeMessage(User telegramUser, String chatId) {
+        return userService.getUser(telegramUser.getId()).map(u -> {
+            var day = u.getDay();
+            VideoContent videoContent = contentService.getDayPracticeVideo(day);
+            SendMessage sendMessage = new SendMessage(chatId, videoContent.getTitle());
+            sendMessage.enableMarkdown(true);
+            sendMessage.setReplyMarkup(inlineKeyboardMaker.getInlineVideoButtons(videoContent));
+            return sendMessage;
+        }).orElseThrow();
     }
 
     private SendDocument sendFile(String chatId, SpringWebhookBot bot) throws TelegramApiException {

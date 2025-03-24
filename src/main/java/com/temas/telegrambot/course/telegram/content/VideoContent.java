@@ -6,7 +6,7 @@ import lombok.Getter;
  * Created by azhdanov on 16.02.2025.
  */
 public enum VideoContent {
-    DAY_1("Практика 1","https://www.youtube.com/watch?v=u-pSGPREmZE");
+    DAY_1("Практика 1","https://www.youtube.com/watch?v=B81Kz3ks4x8");
     @Getter
     private final String title;
     @Getter

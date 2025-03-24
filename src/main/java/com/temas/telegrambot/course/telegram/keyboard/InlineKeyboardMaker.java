@@ -14,10 +14,10 @@ import java.util.List;
 @Component
 public class InlineKeyboardMaker {
 
-    public InlineKeyboardMarkup getInlineVideoButtons() {
+    public InlineKeyboardMarkup getInlineVideoButtons(VideoContent videoContent) {
         InlineKeyboardButton button = new InlineKeyboardButton();
-        button.setText(VideoContent.DAY_1.getTitle());
-        button.setUrl(VideoContent.DAY_1.getUrl());
+        button.setText(videoContent.getTitle());
+        button.setUrl(videoContent.getUrl());
 
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         inlineKeyboardMarkup.setKeyboard(List.of(List.of(button)));
