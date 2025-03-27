@@ -15,6 +15,7 @@ public enum ButtonNameEnum {
     PRESENTATION("Презентация"),
     CHECK_LIST("Чек лист"),
     PRACTICE("\uD83C\uDFA7 Практика: [Видео]"),
+    PRACTICE_SOSUD("Практика с энергитическими сосудами"),
     NEXT("Дальше"),
     PREV("Назад"),
     WAY4PAY("WayForPay");

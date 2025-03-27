@@ -17,7 +17,7 @@ public class RegistrationService {
     final OrderService orderService;
     final UserService userService;
 
-    public Optional<User> isPayedUser(Long userId) {
+    public Optional<User> getPayedUser(Long userId) {
         return userService.getUser(userId)
                 .filter(user ->
                     orderService.getOrder(user.getOrderReference())

@@ -2,14 +2,12 @@ package com.temas.telegrambot.course.telegram.handlers;
 
 import com.temas.telegrambot.course.telegram.content.BotMessages;
 import com.temas.telegrambot.course.telegram.content.ButtonNameEnum;
-import com.temas.telegrambot.course.telegram.content.ContentMessages;
 import com.temas.telegrambot.course.telegram.content.VideoContent;
 import com.temas.telegrambot.course.telegram.data.UserMapper;
 import com.temas.telegrambot.course.telegram.keyboard.InlineKeyboardMaker;
 import com.temas.telegrambot.course.telegram.keyboard.ReplyKeyboardMaker;
 import com.temas.telegrambot.course.telegram.payment.PaymentProviderService;
 import com.temas.telegrambot.course.telegram.service.ContentService;
-import com.temas.telegrambot.course.telegram.service.OrderService;
 import com.temas.telegrambot.course.telegram.service.RegistrationService;
 import com.temas.telegrambot.course.telegram.service.UserService;
 import lombok.AccessLevel;
@@ -42,8 +40,6 @@ public class MessageHandler {
     RegistrationService registrationService;
     ContentService contentService;
 
-    private final OrderService orderService;
-
     public BotApiMethod<?> answerMessage(Message message, SpringWebhookBot bot) throws TelegramApiException {
         String chatId = message.getChatId().toString();
 
@@ -59,13 +55,15 @@ public class MessageHandler {
         } else if (inputText.equals(ButtonNameEnum.CHECK_PAYMENT.getButtonName())) {
             return buildCheckPaymentResponse(user, chatId);
         } else if (inputText.equals(ButtonNameEnum.DAY1.getButtonName())) {
-            return getDay1Message(chatId);
+            return getDayMessage(chatId, 1);
         } else if (inputText.equals(ButtonNameEnum.NEXT.getButtonName())) {
-            return getDayXMessage(user, chatId, true);
+            return moveDayMessage(user, chatId, true);
         } else if (inputText.equals(ButtonNameEnum.PREV.getButtonName())) {
-            return getDayXMessage(user, chatId, false);
+            return moveDayMessage(user, chatId, false);
         } else if (inputText.equals(ButtonNameEnum.PRACTICE.getButtonName())) {
             return getPracticeMessage(user, chatId);
+        } else if (inputText.equals(ButtonNameEnum.PRACTICE_SOSUD.getButtonName())) {
+            return getPracticeMessage(chatId, VideoContent.DAY_1_2);
         } else if (inputText.equals(ButtonNameEnum.CHECK_LIST.getButtonName())) {
             sendFile(chatId, bot);
             return null;
@@ -76,47 +74,48 @@ public class MessageHandler {
 
 
     private SendMessage getStartMessage(User telegtramUser, String chatId) {
-        var markup = registrationService.isPayedUser(telegtramUser.getId())
-                .map(replyKeyboardMaker::getFullAccessMainMenuKeyboard)
-                .orElse(replyKeyboardMaker.getNoAccessMainMenuKeyboard());
-
-        SendMessage sendMessage = new SendMessage(chatId, BotMessages.HELP_MESSAGE.getMessage());
-        sendMessage.enableMarkdown(true);
-        sendMessage.setReplyMarkup(markup);
-        return sendMessage;
+        return registrationService.getPayedUser(telegtramUser.getId()).map(u ->
+          getDayMessage(chatId, u.getDay())
+        ).orElseGet(() -> {
+            SendMessage sendMessage = new SendMessage(chatId, BotMessages.HELP_MESSAGE.getMessage());
+            sendMessage.enableMarkdown(true);
+            sendMessage.setReplyMarkup(replyKeyboardMaker.getNoAccessMainMenuKeyboard());
+            return sendMessage;
+        });
     }
 
-    private SendMessage getDay1Message(String chatId) {
-        SendMessage sendMessage = new SendMessage(chatId, ContentMessages.DAY_1_CONTENT.getMessage());
-        sendMessage.enableMarkdown(true);
-        sendMessage.setReplyMarkup(replyKeyboardMaker.getDay1Menu());
-        return sendMessage;
-    }
-
-    private SendMessage getDayXMessage(User telegramUser, String chatId, boolean isForward) {
+    private SendMessage moveDayMessage(User telegramUser, String chatId, boolean isForward) {
         return userService.getUser(telegramUser.getId()).map(u -> {
             var day = isForward ? contentService.nextDay(u): contentService.prevDay(u);
             if (day != u.getDay()) {
                 u.setDay(day);
                 userService.saveUser(u);
             }
-            var content = contentService.getDayContent(day);
-            SendMessage sendMessage = new SendMessage(chatId, content);
-            sendMessage.enableMarkdown(true);
-            sendMessage.setReplyMarkup(replyKeyboardMaker.getDayXMenu());
-            return sendMessage;
+            return getDayMessage(chatId, day);
         }).orElseThrow();
+    }
+
+    private SendMessage getDayMessage(String chatId, int day) {
+        var content = contentService.getDayContent(day);
+        SendMessage sendMessage = new SendMessage(chatId, content);
+        sendMessage.enableMarkdown(true);
+        sendMessage.setReplyMarkup(replyKeyboardMaker.getDayXMenu(day));
+        return sendMessage;
     }
 
     private SendMessage getPracticeMessage(User telegramUser, String chatId) {
         return userService.getUser(telegramUser.getId()).map(u -> {
             var day = u.getDay();
             VideoContent videoContent = contentService.getDayPracticeVideo(day);
-            SendMessage sendMessage = new SendMessage(chatId, videoContent.getTitle());
-            sendMessage.enableMarkdown(true);
-            sendMessage.setReplyMarkup(inlineKeyboardMaker.getInlineVideoButtons(videoContent));
-            return sendMessage;
+            return getPracticeMessage(chatId, videoContent);
         }).orElseThrow();
+    }
+
+    private SendMessage getPracticeMessage(String chatId, VideoContent videoContent) {
+        SendMessage sendMessage = new SendMessage(chatId, videoContent.getTitle());
+        sendMessage.enableMarkdown(true);
+        sendMessage.setReplyMarkup(inlineKeyboardMaker.getInlineVideoButtons(videoContent));
+        return sendMessage;
     }
 
     private SendDocument sendFile(String chatId, SpringWebhookBot bot) throws TelegramApiException {

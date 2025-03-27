@@ -20,10 +20,15 @@ public class ContentService {
     private final static Map<Integer, String> contentMap =
             Map.of(1, ContentMessages.DAY_1_CONTENT.getMessage(),
                     2, ContentMessages.DAY_2_CONTENT.getMessage(),
-                    3, ContentMessages.DAY_3_CONTENT.getMessage());
+                    3, ContentMessages.DAY_3_CONTENT.getMessage(),
+                    4, ContentMessages.DAY_4_CONTENT.getMessage(),
+                    5, ContentMessages.DAY_5_CONTENT.getMessage(),
+                    6, ContentMessages.DAY_6_CONTENT.getMessage(),
+                    7, ContentMessages.DAY_7_CONTENT.getMessage());
 
     private final static Map<Integer, VideoContent> practiceMap =
-            Map.of(1, VideoContent.DAY_1);
+            Map.of(0, VideoContent.DAY_1_2,
+                    1, VideoContent.DAY_1);
 
 
     private static final int FINAL_DAY_NUMBER = 7;
