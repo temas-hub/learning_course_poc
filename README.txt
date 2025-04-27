@@ -12,6 +12,7 @@
 4. update host name in
 4.1 http-client.private.env.json
 4.2 https://m.wayforpay.com/uk/mportal/payments/button-update?id=22620396
+5.call webhook.http
 
 
 ### Remote

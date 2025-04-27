@@ -1,8 +1,10 @@
 package com.temas.telegrambot.course.telegram.keyboard;
 
 import com.temas.telegrambot.course.telegram.content.ButtonNameEnum;
+import com.temas.telegrambot.course.telegram.content.Content;
+import com.temas.telegrambot.course.telegram.content.VideoContent;
 import com.temas.telegrambot.course.telegram.data.User;
-import com.temas.telegrambot.course.telegram.service.UserService;
+import com.temas.telegrambot.course.telegram.service.ContentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -18,7 +20,7 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class ReplyKeyboardMaker {
-    final UserService userService;
+    private final ContentService contentService;
 
     public ReplyKeyboardMarkup buildMainMenuKeyboard() {
         KeyboardRow row1 = new KeyboardRow();
@@ -34,12 +36,16 @@ public class ReplyKeyboardMaker {
 
     public ReplyKeyboardMarkup getNoAccessMainMenuKeyboard() {
         KeyboardRow row1 = new KeyboardRow();
-        row1.add(new KeyboardButton(ButtonNameEnum.BUY.getButtonName()));
-        row1.add(new KeyboardButton(ButtonNameEnum.CHECK_PAYMENT.getButtonName()));
+        row1.add(new KeyboardButton(VideoContent.INTRO.getId()));
+        row1.add(new KeyboardButton(ButtonNameEnum.TEST.getButtonName()));
+
+        KeyboardRow row2 = new KeyboardRow();
+        row2.add(new KeyboardButton(ButtonNameEnum.BUY.getButtonName()));
+        row2.add(new KeyboardButton(ButtonNameEnum.CHECK_PAYMENT.getButtonName()));
 
         final ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
         replyKeyboardMarkup.setResizeKeyboard(true);
-        replyKeyboardMarkup.setKeyboard(List.of(row1));
+        replyKeyboardMarkup.setKeyboard(List.of(row1, row2));
 
         return replyKeyboardMarkup;
     }
@@ -57,25 +63,31 @@ public class ReplyKeyboardMaker {
         replyKeyboardMarkup.setResizeKeyboard(true);
         replyKeyboardMarkup.setKeyboard(keyboard);
 
-        return replyKeyboardMarkup;    }
+        return replyKeyboardMarkup;
+    }
 
 
     public ReplyKeyboardMarkup getDayXMenu(int day) {
-        KeyboardRow row1 = new KeyboardRow();
-        if (day == 1) {
-            row1.add(new KeyboardButton(ButtonNameEnum.CHECK_LIST.getButtonName()));
-            row1.add(new KeyboardButton(ButtonNameEnum.PRACTICE_SOSUD.getButtonName()));
-        } else {
-            row1.add(new KeyboardButton(ButtonNameEnum.PREV.getButtonName()));
+        List<KeyboardRow> keyboard = new ArrayList<>();
+        KeyboardRow row = new KeyboardRow();
+
+        for (Content c : contentService.getDayContentButtons(day)) {
+            row.add(new KeyboardButton(c.getTitle()));
+            if (row.size() == 2) {
+                keyboard.add(row);
+                row = new KeyboardRow();
+            }
+        }
+        if (day > 1) {
+            row.add(new KeyboardButton(ButtonNameEnum.PREV.getButtonName()));
+        }
+        if (row.size() == 2) {
+            keyboard.add(row);
+            row = new KeyboardRow();
         }
 
-        KeyboardRow row2 = new KeyboardRow();
-        row2.add(new KeyboardButton(ButtonNameEnum.PRACTICE.getButtonName()));
-        row2.add(new KeyboardButton(ButtonNameEnum.NEXT.getButtonName()));
-
-        List<KeyboardRow> keyboard = new ArrayList<>();
-        keyboard.add(row1);
-        keyboard.add(row2);
+        row.add(new KeyboardButton(ButtonNameEnum.NEXT.getButtonName()));
+        keyboard.add(row);
 
         final ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
         replyKeyboardMarkup.setResizeKeyboard(true);

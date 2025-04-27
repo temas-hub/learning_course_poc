@@ -3,15 +3,12 @@ package com.temas.telegrambot.course.telegram;
 
 import com.temas.telegrambot.course.telegram.content.BotMessages;
 import com.temas.telegrambot.course.telegram.handlers.MessageHandler;
+import lombok.extern.slf4j.Slf4j;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
-import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
-import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updates.SetWebhook;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
@@ -29,6 +26,7 @@ import java.io.IOException;
 
 @Getter
 @Setter
+@Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class EnergyCourseBot extends SpringWebhookBot {
     String botPath;
@@ -48,6 +46,7 @@ public class EnergyCourseBot extends SpringWebhookBot {
         try {
             return handleUpdate(update);
         } catch (Exception e) {
+            log.error("Error processing update: {}", e.getMessage(), e);
             return new SendMessage(update.getMessage().getChatId().toString(),
                     BotMessages.EXCEPTION_WHAT_THE_FUCK.getMessage());
         }

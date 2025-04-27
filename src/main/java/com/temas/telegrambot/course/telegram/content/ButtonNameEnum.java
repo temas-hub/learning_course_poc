@@ -8,14 +8,11 @@ package com.temas.telegrambot.course.telegram.content;
  */
 public enum ButtonNameEnum {
     START("Старт"),
+    TEST("Хочу протестировать"),
     BUY("Купить"),
     CHECK_PAYMENT("Проверить оплату"),
     MENU("Содержание"),
     DAY1("День 1"),
-    PRESENTATION("Презентация"),
-    CHECK_LIST("Чек лист"),
-    PRACTICE("\uD83C\uDFA7 Практика: [Видео]"),
-    PRACTICE_SOSUD("Практика с энергитическими сосудами"),
     NEXT("Дальше"),
     PREV("Назад"),
     WAY4PAY("WayForPay");

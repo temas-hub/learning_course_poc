@@ -17,7 +17,7 @@ public class InlineKeyboardMaker {
     public InlineKeyboardMarkup getInlineVideoButtons(VideoContent videoContent) {
         InlineKeyboardButton button = new InlineKeyboardButton();
         button.setText(videoContent.getTitle());
-        button.setUrl(videoContent.getUrl());
+        button.setUrl(videoContent.getLink());
 
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         inlineKeyboardMarkup.setKeyboard(List.of(List.of(button)));

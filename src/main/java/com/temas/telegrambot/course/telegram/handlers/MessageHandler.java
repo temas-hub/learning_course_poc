@@ -1,8 +1,6 @@
 package com.temas.telegrambot.course.telegram.handlers;
 
-import com.temas.telegrambot.course.telegram.content.BotMessages;
-import com.temas.telegrambot.course.telegram.content.ButtonNameEnum;
-import com.temas.telegrambot.course.telegram.content.VideoContent;
+import com.temas.telegrambot.course.telegram.content.*;
 import com.temas.telegrambot.course.telegram.data.UserMapper;
 import com.temas.telegrambot.course.telegram.keyboard.InlineKeyboardMaker;
 import com.temas.telegrambot.course.telegram.keyboard.ReplyKeyboardMaker;
@@ -15,9 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
-import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -52,6 +48,8 @@ public class MessageHandler {
             return getStartMessage(user, chatId);
         } else if (inputText.equals(ButtonNameEnum.BUY.getButtonName())) {
             return getBuyResponse(user, chatId);
+        } else if (inputText.equals(ButtonNameEnum.TEST.getButtonName())) {
+            return getRequestTestMessage(user, chatId);
         } else if (inputText.equals(ButtonNameEnum.CHECK_PAYMENT.getButtonName())) {
             return buildCheckPaymentResponse(user, chatId);
         } else if (inputText.equals(ButtonNameEnum.DAY1.getButtonName())) {
@@ -60,21 +58,20 @@ public class MessageHandler {
             return moveDayMessage(user, chatId, true);
         } else if (inputText.equals(ButtonNameEnum.PREV.getButtonName())) {
             return moveDayMessage(user, chatId, false);
-        } else if (inputText.equals(ButtonNameEnum.PRACTICE.getButtonName())) {
-            return getPracticeMessage(user, chatId);
-        } else if (inputText.equals(ButtonNameEnum.PRACTICE_SOSUD.getButtonName())) {
-            return getPracticeMessage(chatId, VideoContent.DAY_1_2);
-        } else if (inputText.equals(ButtonNameEnum.CHECK_LIST.getButtonName())) {
-            sendFile(chatId, bot);
-            return null;
         } else {
-            return new SendMessage(chatId, BotMessages.TBD.getMessage());
+            return handleCustomMessage(bot, user, chatId, inputText);
         }
     }
 
+    private SendMessage getRequestTestMessage(User telegramUser, String chatId) {
+        var u = userService.getUser(telegramUser.getId()).orElse(
+                userService.saveUser(UserMapper.mapUser(telegramUser, chatId)));
+        return getDayMessage(chatId, u.getDay());
+    }
 
-    private SendMessage getStartMessage(User telegtramUser, String chatId) {
-        return registrationService.getPayedUser(telegtramUser.getId()).map(u ->
+
+    private SendMessage getStartMessage(User telegramUser, String chatId) {
+        return registrationService.getPayedUser(telegramUser.getId()).map(u ->
           getDayMessage(chatId, u.getDay())
         ).orElseGet(() -> {
             SendMessage sendMessage = new SendMessage(chatId, BotMessages.HELP_MESSAGE.getMessage());
@@ -103,30 +100,15 @@ public class MessageHandler {
         return sendMessage;
     }
 
-    private SendMessage getPracticeMessage(User telegramUser, String chatId) {
-        return userService.getUser(telegramUser.getId()).map(u -> {
-            var day = u.getDay();
-            VideoContent videoContent = contentService.getDayPracticeVideo(day);
-            return getPracticeMessage(chatId, videoContent);
-        }).orElseThrow();
-    }
+    private BotApiMethod<?> handleCustomMessage(SpringWebhookBot bot, User telegramUser, String chatId, String text) throws TelegramApiException {
+        var c = userService.getUser(telegramUser.getId())
+                .flatMap(u -> contentService.getContentById(text));
 
-    private SendMessage getPracticeMessage(String chatId, VideoContent videoContent) {
-        SendMessage sendMessage = new SendMessage(chatId, videoContent.getTitle());
-        sendMessage.enableMarkdown(true);
-        sendMessage.setReplyMarkup(inlineKeyboardMaker.getInlineVideoButtons(videoContent));
-        return sendMessage;
-    }
+        if (c.isPresent()) {
+            return c.get().buildMessage(chatId, bot);
+        }
 
-    private SendDocument sendFile(String chatId, SpringWebhookBot bot) throws TelegramApiException {
-        SendDocument sendDocument = new SendDocument();
-        sendDocument.setChatId(chatId);
-
-        File file = new File("check_list.pdf");
-        sendDocument.setDocument(new InputFile(file));
-        sendDocument.setCaption("Here is your file!");
-        bot.execute(sendDocument);
-        return sendDocument;
+        throw new IllegalStateException("Unknown content id: " + text);
     }
 
     private BotApiMethod<?> getBuyResponse(User telegramUser, String chatId) {
