@@ -59,7 +59,7 @@ public class MessageHandler {
         } else if (inputText.equals(ButtonNameEnum.PREV.getButtonName())) {
             return moveDayMessage(user, chatId, false);
         } else {
-            return handleCustomMessage(bot, user, chatId, inputText);
+            return handleCustomMessage(bot, chatId, inputText);
         }
     }
 
@@ -100,9 +100,8 @@ public class MessageHandler {
         return sendMessage;
     }
 
-    private BotApiMethod<?> handleCustomMessage(SpringWebhookBot bot, User telegramUser, String chatId, String text) throws TelegramApiException {
-        var c = userService.getUser(telegramUser.getId())
-                .flatMap(u -> contentService.getContentById(text));
+    private BotApiMethod<?> handleCustomMessage(SpringWebhookBot bot, String chatId, String text) throws TelegramApiException {
+        var c = contentService.getContentById(text);
 
         if (c.isPresent()) {
             return c.get().buildMessage(chatId, bot);
