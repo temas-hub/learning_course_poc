@@ -127,7 +127,8 @@ public class MessageHandler {
     private BotApiMethod<?> buildCheckPaymentResponse(User telegramUser, String chatId) {
         try {
             var user = userService.getUser(telegramUser.getId());
-            if (user.isPresent() && paymentProviderService.confirmOrderApproved(user.get().getOrderReference())) {
+            if (user.isPresent() && user.get().getOrderReference() != null &&
+                    paymentProviderService.confirmOrderApproved(user.get().getOrderReference())) {
                 SendMessage sendMessage = new SendMessage(chatId, BotMessages.SUCCESS_PAYMENT.getMessage());
                 sendMessage.setReplyMarkup(replyKeyboardMaker.getFullAccessMainMenuKeyboard(user.get()));
                 return sendMessage;
