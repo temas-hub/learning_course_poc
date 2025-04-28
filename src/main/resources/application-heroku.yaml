@@ -18,6 +18,13 @@ wayforpay:
     create_payment: "https://secure.wayforpay.com/pay"
     callback:
       url: "/callback"
+spring:
+  data:
+    redis:
+      url: ${REDIS_URL}  # здесь мы подключаемся через полный URL
+      ssl:
+        enabled: true  # на Heroku обязательно SSL
+      database: 0
 server:
   port: "${PORT:5000}"
 management:
