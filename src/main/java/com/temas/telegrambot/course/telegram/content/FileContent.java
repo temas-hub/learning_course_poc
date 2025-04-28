@@ -20,7 +20,7 @@ public class FileContent extends Content {
     public static final Content PDF_7_3 = new FileContent("f_7_3", "План", "7_3.План.pdf");
 
     public FileContent(String id, String title, String link) {
-        super(id, title, link);
+        super(id, title + " \uD83D\uDCC4", link);
     }
 
     @Override

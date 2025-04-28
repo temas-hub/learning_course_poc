@@ -54,7 +54,7 @@ public class MessageHandler {
             return buildCheckPaymentResponse(user, chatId);
         } else if (inputText.equals(ButtonNameEnum.DAY1.getButtonName())) {
             return getDayMessage(chatId, 1);
-        } else if (inputText.equals(ButtonNameEnum.NEXT.getButtonName())) {
+        } else if (inputText.equals(ButtonNameEnum.NEXT.getButtonName()) || inputText.equals(ButtonNameEnum.BONUS.getButtonName())) {
             return moveDayMessage(user, chatId, true);
         } else if (inputText.equals(ButtonNameEnum.PREV.getButtonName())) {
             return moveDayMessage(user, chatId, false);
@@ -66,7 +66,7 @@ public class MessageHandler {
     private SendMessage getRequestTestMessage(User telegramUser, String chatId) {
         var u = userService.getUser(telegramUser.getId()).orElse(
                 userService.saveUser(UserMapper.mapUser(telegramUser, chatId)));
-        return getDayMessage(chatId, u.getDay());
+        return moveDayMessage(telegramUser, chatId, true);
     }
 
 

@@ -36,7 +36,7 @@ public class ReplyKeyboardMaker {
 
     public ReplyKeyboardMarkup getNoAccessMainMenuKeyboard() {
         KeyboardRow row1 = new KeyboardRow();
-        row1.add(new KeyboardButton(VideoContent.INTRO.getId()));
+        row1.add(new KeyboardButton(VideoContent.INTRO.getTitle()));
         row1.add(new KeyboardButton(ButtonNameEnum.TEST.getButtonName()));
 
         KeyboardRow row2 = new KeyboardRow();
@@ -86,7 +86,12 @@ public class ReplyKeyboardMaker {
             row = new KeyboardRow();
         }
 
-        row.add(new KeyboardButton(ButtonNameEnum.NEXT.getButtonName()));
+        if (day == 7) {
+            row.add(new KeyboardButton(ButtonNameEnum.BONUS.getButtonName()));
+        } else {
+            row.add(new KeyboardButton(ButtonNameEnum.NEXT.getButtonName()));
+        }
+
         keyboard.add(row);
 
         final ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();

@@ -5,6 +5,7 @@ import com.temas.telegrambot.course.telegram.data.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -19,6 +20,7 @@ public class RegistrationService {
 
     public Optional<User> getPayedUser(Long userId) {
         return userService.getUser(userId)
+                .filter(user -> user.getOrderReference() != null)
                 .filter(user ->
                     orderService.getOrder(user.getOrderReference())
                     .map(order ->  order.getStatus() == OrderStatus.APPROVED)

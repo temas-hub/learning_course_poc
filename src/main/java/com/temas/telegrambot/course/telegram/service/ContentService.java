@@ -35,7 +35,7 @@ public class ContentService {
 
     private final static Map<Integer, List<Content>> contentMap = Map.of(
             1, List.of(FileContent.CHECK_LIST, VideoContent.DAY_1, VideoContent.DAY_1_2),
-            2, List.of(VideoContent.DAY_2_1, VideoContent.DAY_2_2),
+            2, List.of(VideoContent.DAY_2_1, VideoContent.DAY_2_2, VideoContent.DAY_2_3),
             3, List.of(VideoContent.DAY_3_1, VideoContent.DAY_3_2),
             4, List.of(FileContent.PDF_4_1, VideoContent.DAY_4_1),
             5, List.of(VideoContent.DAY_5_1, FileContent.PDF_5_2),
@@ -45,6 +45,7 @@ public class ContentService {
     );
     
     private final static Map<String, Content> reverseIndex = Map.ofEntries(
+            Map.entry(VideoContent.INTRO.getTitle(), VideoContent.INTRO),
             Map.entry(FileContent.CHECK_LIST.getTitle(), FileContent.CHECK_LIST),
             Map.entry(FileContent.PDF_4_1.getTitle(), FileContent.PDF_4_1),
             Map.entry(FileContent.PDF_5_2.getTitle(), FileContent.PDF_5_2),
@@ -54,6 +55,7 @@ public class ContentService {
             Map.entry(VideoContent.DAY_1_2.getTitle(), VideoContent.DAY_1_2),
             Map.entry(VideoContent.DAY_2_1.getTitle(), VideoContent.DAY_2_1),
             Map.entry(VideoContent.DAY_2_2.getTitle(), VideoContent.DAY_2_2),
+            Map.entry(VideoContent.DAY_2_3.getTitle(), VideoContent.DAY_2_3),
             Map.entry(VideoContent.DAY_3_1.getTitle(), VideoContent.DAY_3_1),
             Map.entry(VideoContent.DAY_3_2.getTitle(), VideoContent.DAY_3_2),
             Map.entry(VideoContent.DAY_4_1.getTitle(), VideoContent.DAY_4_1),

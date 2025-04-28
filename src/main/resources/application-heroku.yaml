@@ -7,8 +7,8 @@ telegram:
   bot-name: "${BOT_NAME}"
   bot-token: "${BOT_TOKEN}"
 wayforpay:
-#  merchantAccount: "freelance_user_67b5a584473d6"
-#  secretKey: "03354047d6cedde54829c5ff0035dbe4f29923f6"
+  #  merchantAccount: "freelance_user_67b5a584473d6"
+  #  secretKey: "03354047d6cedde54829c5ff0035dbe4f29923f6"
   merchantAccount: "${WAYFORPAY_MERCHANT_ACCOUNT}"
   secretKey: "${WAYFORPAY_SECRET_KEY}"
   apiVersion: "1"
@@ -18,15 +18,6 @@ wayforpay:
     create_payment: "https://secure.wayforpay.com/pay"
     callback:
       url: "/callback"
-spring:
-  data:
-    redis:
-      host: "${REDIS_HOST}"
-      port: "${REDIS_PORT:6379}"  # 6379 по умолчанию
-      password: "${REDIS_PASSWORD}"
-      ssl:
-        enabled: true
-      database: 0
 server:
   port: "${PORT:5000}"
 management:

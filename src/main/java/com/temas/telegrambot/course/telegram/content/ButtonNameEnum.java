@@ -14,6 +14,7 @@ public enum ButtonNameEnum {
     MENU("Содержание"),
     DAY1("День 1"),
     NEXT("Дальше"),
+    BONUS("Бонус \uD83C\uDF81"),
     PREV("Назад"),
     WAY4PAY("WayForPay");
 

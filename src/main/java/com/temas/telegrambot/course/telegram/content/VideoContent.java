@@ -14,9 +14,10 @@ import java.util.List;
 public class VideoContent extends Content {
     public static final Content INTRO = new VideoContent("v_0", "Приветствие", "https://youtu.be/jFopmNoQ1kw?si=bOMqpZjTz4m3vBZ_");
     public static final Content DAY_1 = new VideoContent("v_1_1", "Энергетическое сканирование тела", "https://youtu.be/B81Kz3ks4x8?si=HOc71EeCfGTlm9HW");
-    public static final Content DAY_1_2 = new VideoContent("v_1_2", "Энергитическими сосуды", "https://youtu.be/aFi7BRkFHh0?si=fe6EaItJOolk34Vn");
+    public static final Content DAY_1_2 = new VideoContent("v_1_2", "Энергитические сосуды", "https://youtu.be/aFi7BRkFHh0?si=fe6EaItJOolk34Vn");
     public static final Content DAY_2_1 = new VideoContent("v_2_1", "Ограничивающие убеждения", "https://youtu.be/pSjmQ2y-oOc");
     public static final Content DAY_2_2 = new VideoContent("v_2_2", "Практика глубокой очистки", "https://youtu.be/bnOmz0hncNw?si=zPuZVgFogOOs_9qD");
+    public static final Content DAY_2_3 = new VideoContent("v_2_3", "Бонус- практика с символами", "https://youtu.be/EqM4C79k3zk");
     public static final Content DAY_3_1 = new VideoContent("v_3_1", "Энергетическое солнце", "https://youtu.be/OBFHp7Aem68?si=Lm8nb695oUkt5PQ7");
     public static final Content DAY_3_2 = new VideoContent("v_3_2", "Работа с телом", "https://youtu.be/EVcR1y8Tg3c?si=zxp03W3ECySNbrld");
     public static final Content DAY_4_1 = new VideoContent("v_4_1", "Сеанс Изобилия", "https://youtu.be/PaH0KCLWPVY?si=ehtirdyqMXm1VWPI");
@@ -28,7 +29,7 @@ public class VideoContent extends Content {
     public static final Content BONUS_3 = new VideoContent("v_b_3", "Раскрытие внутренней силы", "https://youtu.be/AYM2QQ9hg6w?si=8-y9s2WoZODrsWeE");
 
     public VideoContent(String id, String title, String link) {
-        super(id, title, link);
+        super(id, title + " \uD83C\uDFA5", link);
     }
 
     @Override
