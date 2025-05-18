@@ -14,10 +14,10 @@ import java.io.File;
  */
 public class FileContent extends Content {
     public static final Content CHECK_LIST = new FileContent("f_1_1", "Чек лист", "1_1.check_list.pdf");
-    public static final Content PDF_4_1 = new FileContent("f_4_1", "Глубокая проработка Изобилия", "4_1.Глубокая проработка Изобилия.pdf");
-    public static final Content PDF_5_2 = new FileContent("f_5_2", "Зеркальная трансформация", "5_2.Зеркальная трансформация.pdf");
-    public static final Content IMAGE_6_1 = new FileContent("f_6_1", "Ключи енергии", "6_1.Ключи енергии.jpg");
-    public static final Content PDF_7_3 = new FileContent("f_7_3", "План", "7_3.План.pdf");
+    public static final Content PDF_4_1 = new FileContent("f_4_1", "Глубокая проработка Изобилия", "4_1.pdf");
+    public static final Content PDF_5_2 = new FileContent("f_5_2", "Зеркальная трансформация", "5_2.pdf");
+    public static final Content IMAGE_6_1 = new FileContent("f_6_1", "Ключи енергии", "6_1.jpg");
+    public static final Content PDF_7_3 = new FileContent("f_7_3", "План", "7_3.pdf");
 
     public FileContent(String id, String title, String link) {
         super(id, title + " \uD83D\uDCC4", link);

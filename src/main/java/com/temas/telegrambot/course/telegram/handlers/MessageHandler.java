@@ -11,6 +11,7 @@ import com.temas.telegrambot.course.telegram.service.UserService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -27,6 +28,7 @@ import java.io.File;
 @Component
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 @RequiredArgsConstructor
+@Slf4j
 public class MessageHandler {
 
     InlineKeyboardMaker inlineKeyboardMaker;
@@ -119,6 +121,7 @@ public class MessageHandler {
             sendMessage.setReplyMarkup(inlineKeyboardMaker.getInlineLinkButton(ButtonNameEnum.WAY4PAY.getButtonName(), url));
             return sendMessage;
         } catch (Exception e) {
+            log.error("Error: " + e.getMessage() + "; user: " + telegramUser);
             return new SendMessage(chatId,
                     BotMessages.EXCEPTION_WHAT_THE_FUCK.getMessage());
         }
@@ -138,6 +141,7 @@ public class MessageHandler {
                 return sendMessage;
             }
         } catch (Exception e) {
+            log.error("Error: " + e.getMessage() + "; user: " + telegramUser);
             return new SendMessage(chatId,
                     BotMessages.EXCEPTION_WHAT_THE_FUCK.getMessage());
         }
